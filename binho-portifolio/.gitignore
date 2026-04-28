@@ -1,0 +1,72 @@
+# Dependências do Node
+node_modules/
+/.pnp
+.pnp.js
+
+# Saídas de Build (Produção)
+/build/
+/dist/
+/out/
+
+# Logs de Erros e Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+pnpm-debug.log*
+
+# Arquivos de Teste
+coverage/
+.nyc_output/
+
+# Chaves / Variáveis de Ambiente e Segredos
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+
+# Caches e Arquivos Temporários de Ferramentas
+.eslintcache
+.stylelintcache
+.npm/
+.yarn/
+.webpack/
+.parcel-cache/
+.swc/
+
+# Arquivos Específicos de Sistema Operacional (OS)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Configurações de IDEs e Editores
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.fleet/
+.history/
+
+# Arquivos opcionais gerados por package managers
+# (Alguns times preferem commitar o lockfile, outros não. Por padrão o lockfile (package-lock.json / yarn.lock) DEVE ser commitado).
+# Por isso, eles NÃO estão ignorados aqui.
+
+# Vercel / Netlify / Firebase (Deployments Serverless)
+.vercel/
+.netlify/
+.firebase/
+
+# Gatsby / Next.js (Se um dia migrar)
+.next/
+.cache/
+public/page-data/
