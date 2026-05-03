@@ -1,13 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ParallaxBackground from '../ui/ParallaxBackground';
 
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Gradient & Blur */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] opacity-50 pointer-events-none"></div>
-      </div>
+      <ParallaxBackground />
 
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <motion.h1 
