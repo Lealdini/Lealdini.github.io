@@ -1,10 +1,13 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Sparkles, Code2, Database, BrainCircuit } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const LabSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t, language } = useLanguage();
+  const isPt = language === 'pt';
 
   return (
     <section className="py-24 px-6 relative max-w-6xl mx-auto">
@@ -15,7 +18,7 @@ const LabSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          R&D Lab
+          {t('lab.section_title')}
         </motion.h2>
         <motion.p 
           className="text-lg text-zinc-600 dark:text-gray-400 font-light max-w-3xl mx-auto transition-colors duration-500"
@@ -23,7 +26,11 @@ const LabSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, delay: 0.2 }}
         >
-          Explorando a fronteira entre <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Inteligência Artificial</span> e <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Engenharia de Software</span>.
+          {isPt ? (
+            <>Onde eu misturo <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Inteligência Artificial</span>, código e um pouco de loucura.</>
+          ) : (
+            <>Where I mix <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Artificial Intelligence</span>, code, and a bit of madness.</>
+          )}
         </motion.p>
       </div>
 
@@ -45,13 +52,17 @@ const LabSection = () => {
 
           <div className="w-full md:w-2/3 flex flex-col justify-center">
             <span className="text-xs font-bold tracking-widest text-accent uppercase mb-4 flex items-center gap-2">
-              <Sparkles className="w-4 h-4" /> Destaque
+              <Sparkles className="w-4 h-4" /> {t('lab.highlight')}
             </span>
             <h3 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-4 transition-colors duration-500">
-              Oracle.Ai
+              {t('lab.project_title')}
             </h3>
             <p className="text-zinc-600 dark:text-gray-400 font-light text-lg mb-8 transition-colors duration-500 leading-relaxed">
-              Um aplicativo construído com <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Kotlin Multiplatform (KMP)</strong> que se integra nativamente à <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">API do Gemini</strong>. O Oracle.Ai oferece leituras de Tarot personalizadas, unindo misticismo e inteligência artificial generativa em uma interface fluida, moderna e responsiva.
+              {isPt ? (
+                <>Fiz um app em <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Kotlin Multiplatform (KMP)</strong> que usa a <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">API do Gemini</strong> para ler o Tarot! Juntei misticismo com IA pra criar algo divertido, fluido e que funciona em qualquer lugar.</>
+              ) : (
+                <>I built an app in <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Kotlin Multiplatform (KMP)</strong> that uses the <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Gemini API</strong> to read Tarot! I combined mysticism with AI to create something fun, fluid, and that works anywhere.</>
+              )}
             </p>
             
             <div className="flex flex-wrap gap-4 mt-auto">

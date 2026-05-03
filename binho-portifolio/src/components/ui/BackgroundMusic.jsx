@@ -79,17 +79,15 @@ const BackgroundMusic = () => {
       </button>
 
       {/* Volume Control */}
-      <div className="flex items-center gap-2">
+      <div 
+        className="flex items-center gap-2"
+        onMouseEnter={() => setShowVolume(true)}
+        onMouseLeave={() => setShowVolume(false)}
+      >
         <button 
-          onClick={() => {
-            // Se clicar no ícone de volume, muta/desmuta. 
-            // Se quiser abrir o slider, podemos usar outro botão, mas aqui vamos abrir o slider no hover (desktop) ou manter o toggleMute.
-            // Para mobile, vamos fazer um toggle para mostrar o slider.
-            setShowVolume(!showVolume);
-          }}
-          onDoubleClick={toggleMute}
+          onClick={toggleMute}
           className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center justify-center"
-          aria-label="Toggle Volume Slider"
+          aria-label="Toggle Mute"
         >
           {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
@@ -100,7 +98,7 @@ const BackgroundMusic = () => {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: "60px", opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="overflow-hidden flex items-center"
+              className="overflow-hidden hidden md:flex items-center"
             >
               <input 
                 type="range" 

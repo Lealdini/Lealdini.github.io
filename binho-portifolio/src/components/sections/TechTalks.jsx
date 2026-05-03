@@ -2,12 +2,33 @@ import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Presentation, Download, Eye } from 'lucide-react';
 import SlideViewer from '../ui/SlideViewer';
-import { talksData } from '../../data/content';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const TechTalks = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activePDF, setActivePDF] = useState(null);
+  const { t, language } = useLanguage();
+  const isPt = language === 'pt';
+
+  const talksData = [
+    {
+      id: 1,
+      tag: t('tech_talks.talk1_tag'),
+      title: t('tech_talks.talk1_title'),
+      description: t('tech_talks.talk1_desc'),
+      file: "/apresentacoes/falando_com_maquina.pdf",
+      gradient: "from-emerald-500/20 to-teal-900/20"
+    },
+    {
+      id: 2,
+      tag: t('tech_talks.talk2_tag'),
+      title: t('tech_talks.talk2_title'),
+      description: t('tech_talks.talk2_desc'),
+      file: "/apresentacoes/ai_verge.pdf",
+      gradient: "from-green-500/20 to-emerald-900/20"
+    }
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -37,7 +58,7 @@ const TechTalks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          Visão & Liderança
+          {t('tech_talks.title')}
         </motion.h2>
         <motion.p 
           className="text-lg text-zinc-600 dark:text-gray-400 font-light max-w-3xl mx-auto transition-colors duration-500"
@@ -45,7 +66,11 @@ const TechTalks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, delay: 0.2 }}
         >
-          Apaixonado por formar e mentorar novos engenheiros, impulsionar a melhoria contínua de <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">UI/UX</span> e engajado em iniciativas <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">ESG</span> para construir um futuro sustentável na tecnologia.
+          {isPt ? (
+            <>Apaixonado por formar e mentorar novos engenheiros, impulsionar a melhoria contínua de <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">UI/UX</span> e engajado em iniciativas <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">ESG</span> para construir um futuro sustentável na tecnologia.</>
+          ) : (
+            <>Passionate about building and mentoring new engineers, driving continuous <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">UI/UX</span> improvement, and engaged in <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">ESG</span> initiatives to build a sustainable future in tech.</>
+          )}
         </motion.p>
       </div>
 
@@ -89,7 +114,7 @@ const TechTalks = () => {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-300 shadow-md"
                 >
                   <Eye className="w-4 h-4" />
-                  <span>Ver Slides</span>
+                  <span>{t('tech_talks.read_slides')}</span>
                 </button>
                 <a 
                   href={talk.file}
@@ -98,7 +123,7 @@ const TechTalks = () => {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white/60 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-full text-zinc-900 dark:text-white font-medium hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-300"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Baixar PDF</span>
+                  <span>{t('tech_talks.download_pdf')}</span>
                 </a>
               </div>
             </div>
