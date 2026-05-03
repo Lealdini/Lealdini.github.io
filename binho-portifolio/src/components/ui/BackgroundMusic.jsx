@@ -66,8 +66,11 @@ const BackgroundMusic = () => {
 
   return (
     <div className="fixed z-50 flex items-center gap-3 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/60 dark:border-white/10 shadow-lg rounded-full py-2 px-4 transition-colors duration-500 top-6 right-6 md:top-8 md:right-8">
-      {/* Hidden Audio Element */}
-      <audio ref={audioRef} src="/audio/alive.wav" preload="auto" />
+      {/* Hidden Audio Element — opus first (smallest), mp3 fallback for Safari < 17.5 */}
+      <audio ref={audioRef} preload="none">
+        <source src="/audio/alive.opus" type="audio/ogg; codecs=opus" />
+        <source src="/audio/alive.mp3" type="audio/mpeg" />
+      </audio>
 
       {/* Play / Pause Button */}
       <button 

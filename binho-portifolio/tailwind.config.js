@@ -1,8 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: 'class',
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
+    './index.html',
+    './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     extend: {
@@ -12,7 +13,7 @@ module.exports = {
         surface: '#1C1C1E',
         primary: '#E0E0E0',
         secondary: '#A0A0A5',
-        accent: '#4ade80', // green accent for subtle "neon" or highlights
+        accent: '#4ade80',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -34,9 +35,9 @@ module.exports = {
         borderBeam: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
-        }
-      }
+        },
+      },
     },
   },
   plugins: [],
-}
+};

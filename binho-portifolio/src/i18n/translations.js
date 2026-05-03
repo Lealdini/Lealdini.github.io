@@ -6,11 +6,14 @@ export const translations = {
       title2: "& apps incríveis.",
       subtitle: "Oi, eu sou o Binho! Desenvolvedor Android, Tech Lead e curioso em tempo integral.",
       cta: "Bora ver as mágicas?",
-      download_cv: "Baixar Currículo"
+      download_cv: "Baixar Currículo",
+      available: "Disponível para oportunidades",
+      portrait_alt: "Foto retrato em preto e branco do Fábio Lealdini"
     },
     about: {
       section_title: "Quem sou eu?",
-      text: "Há mais de 7 anos transformando café em aplicativos que milhões de pessoas usam. Já passei por lugares incríveis como <1>CI&T</1>, <2>IBM</2> e <3>Venturus</3>, sempre focado em fazer a galera do Android mais feliz com arquiteturas limpas e bem feitas."
+      prefix: "Há exatos ",
+      suffix: " transformando café em aplicativos que milhões de pessoas usam. Já passei por lugares incríveis como <1>CI&T</1>, <2>IBM</2> e <3>Venturus</3>, sempre focado em fazer a galera do Android mais feliz com arquiteturas limpas e bem feitas."
     },
     experience: {
       section_title: "Por onde passei",
@@ -54,6 +57,8 @@ export const translations = {
       form_email: "Seu e-mail",
       form_message: "Como posso ajudar?",
       form_send: "Enviar Mensagem",
+      form_subject: "Contato pelo portfólio",
+      form_opening: "Seu cliente de e-mail vai abrir agora com a mensagem pré-preenchida.",
       copyright: "Fábio Lealdini. Construído com React, Tailwind CSS e Framer Motion."
     }
   },
@@ -63,11 +68,14 @@ export const translations = {
       title2: "& awesome apps.",
       subtitle: "Hi, I'm Binho! Android Developer, Tech Lead, and full-time curious guy.",
       cta: "Wanna see some magic?",
-      download_cv: "Download Resume"
+      download_cv: "Download Resume",
+      available: "Open to opportunities",
+      portrait_alt: "Black and white portrait of Fábio Lealdini"
     },
     about: {
       section_title: "Who am I?",
-      text: "Over 7 years turning coffee into apps used by millions. I've been through amazing places like <1>CI&T</1>, <2>IBM</2>, and <3>Venturus</3>, always focused on making Android devs happier with clean and well-crafted architectures."
+      prefix: "Exactly ",
+      suffix: " turning coffee into apps used by millions. I've been through amazing places like <1>CI&T</1>, <2>IBM</2>, and <3>Venturus</3>, always focused on making Android devs happier with clean and well-crafted architectures."
     },
     experience: {
       section_title: "Where I've been",
@@ -111,6 +119,8 @@ export const translations = {
       form_email: "Your email",
       form_message: "How can I help?",
       form_send: "Send Message",
+      form_subject: "Portfolio contact",
+      form_opening: "Your mail client will open now with the message pre-filled.",
       copyright: "Fábio Lealdini. Built with React, Tailwind CSS and Framer Motion."
     }
   }

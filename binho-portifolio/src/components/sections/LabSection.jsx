@@ -1,13 +1,21 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Sparkles, Code2, Database, BrainCircuit } from 'lucide-react';
+import { Sparkles, Code2, Database } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import Trans from '../../i18n/Trans';
+import PhoneMockup from '../ui/PhoneMockup';
+
+const Bold = (
+  <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500" />
+);
+const BoldStrong = (
+  <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500" />
+);
 
 const LabSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const { t, language } = useLanguage();
-  const isPt = language === 'pt';
+  const { t } = useLanguage();
 
   return (
     <section className="py-24 px-6 relative max-w-6xl mx-auto">
@@ -26,11 +34,7 @@ const LabSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, delay: 0.2 }}
         >
-          {isPt ? (
-            <>Onde eu misturo <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Inteligência Artificial</span>, código e um pouco de loucura.</>
-          ) : (
-            <>Where I mix <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">Artificial Intelligence</span>, code, and a bit of madness.</>
-          )}
+          <Trans i18nKey="lab.subtitle" components={[Bold]} />
         </motion.p>
       </div>
 
@@ -46,8 +50,8 @@ const LabSection = () => {
         
         <div className="relative w-full glass bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-[2rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-10 transition-colors duration-500 z-10">
           
-          <div className="w-full md:w-1/3 aspect-square md:aspect-auto md:h-64 bg-gradient-to-br from-indigo-500/20 to-purple-900/20 rounded-3xl flex items-center justify-center border border-indigo-500/10">
-             <BrainCircuit className="w-24 h-24 text-indigo-500/50 dark:text-indigo-400/50" />
+          <div className="w-full md:w-1/3 flex items-center justify-center py-4">
+            <PhoneMockup />
           </div>
 
           <div className="w-full md:w-2/3 flex flex-col justify-center">
@@ -58,11 +62,7 @@ const LabSection = () => {
               {t('lab.project_title')}
             </h3>
             <p className="text-zinc-600 dark:text-gray-400 font-light text-lg mb-8 transition-colors duration-500 leading-relaxed">
-              {isPt ? (
-                <>Fiz um app em <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Kotlin Multiplatform (KMP)</strong> que usa a <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">API do Gemini</strong> para ler o Tarot! Juntei misticismo com IA pra criar algo divertido, fluido e que funciona em qualquer lugar.</>
-              ) : (
-                <>I built an app in <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Kotlin Multiplatform (KMP)</strong> that uses the <strong className="font-medium text-zinc-900 dark:text-white transition-colors duration-500">Gemini API</strong> to read Tarot! I combined mysticism with AI to create something fun, fluid, and that works anywhere.</>
-              )}
+              <Trans i18nKey="lab.project_text" components={[BoldStrong, BoldStrong]} />
             </p>
             
             <div className="flex flex-wrap gap-4 mt-auto">

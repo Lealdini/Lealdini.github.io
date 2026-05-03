@@ -1,41 +1,91 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { translations } from './translations';
+import { safeStorage } from '../utils/safeStorage';
 
-const LanguageContext = createContext();
+const SUPPORTED_LANGUAGES = ['pt', 'en'];
+const DEFAULT_LANGUAGE = 'pt';
+const STORAGE_KEY = 'app-language';
+
+const isSupported = (lang) => SUPPORTED_LANGUAGES.includes(lang);
+
+const LanguageContext = createContext({
+  language: DEFAULT_LANGUAGE,
+  toggleLanguage: () => {},
+  t: (key) => key,
+});
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('pt');
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('app-language');
-    if (savedLang) {
+    const savedLang = safeStorage.get(STORAGE_KEY);
+    if (isSupported(savedLang)) {
       setLanguage(savedLang);
-    } else {
-      const browserLang = navigator.language.split('-')[0];
-      if (['pt', 'en'].includes(browserLang)) {
-        setLanguage(browserLang);
-      }
+      return;
+    }
+
+    const browserLang =
+      typeof navigator !== 'undefined' && typeof navigator.language === 'string'
+        ? navigator.language.split('-')[0]
+        : null;
+
+    if (isSupported(browserLang)) {
+      setLanguage(browserLang);
     }
   }, []);
 
-  const toggleLanguage = () => {
-    const newLang = language === 'pt' ? 'en' : 'pt';
-    setLanguage(newLang);
-    localStorage.setItem('app-language', newLang);
-  };
-
-  const t = (key) => {
-    const keys = key.split('.');
-    let value = translations[language];
-    for (const k of keys) {
-      if (value[k] === undefined) return key;
-      value = value[k];
+  // Keep <html lang> in sync so screen readers and SEO crawlers see the right locale.
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language === 'pt' ? 'pt-BR' : 'en';
     }
-    return value;
-  };
+  }, [language]);
+
+  const toggleLanguage = useCallback(() => {
+    setLanguage((prev) => {
+      const next = prev === 'pt' ? 'en' : 'pt';
+      safeStorage.set(STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const t = useCallback(
+    (key) => {
+      if (typeof key !== 'string' || key.length === 0) return key;
+
+      const dict = translations[language] ?? translations[DEFAULT_LANGUAGE];
+      let value = dict;
+
+      for (const k of key.split('.')) {
+        if (value == null || typeof value !== 'object' || value[k] === undefined) {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn(`[i18n] missing translation key: "${key}" (lang: ${language})`);
+          }
+          return key;
+        }
+        value = value[k];
+      }
+
+      return value;
+    },
+    [language]
+  );
+
+  const value = useMemo(
+    () => ({ language, toggleLanguage, t }),
+    [language, toggleLanguage, t]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

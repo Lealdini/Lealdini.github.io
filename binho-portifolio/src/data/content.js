@@ -1,22 +1,3 @@
-export const talksData = [
-  {
-    id: 1,
-    tag: "Engenharia de Software",
-    title: "Batendo um papo com as Máquinas 🤖",
-    description: "Como falar com a IA sem ela alucinar. Dicas práticas e engenharia de prompts pra quem coda de verdade no dia a dia.",
-    file: "/apresentacoes/falando_com_maquina.pdf",
-    gradient: "from-emerald-500/20 to-teal-900/20"
-  },
-  {
-    id: 2,
-    tag: "ESG & Sustentabilidade",
-    title: "IA também polui? 🌳",
-    description: "Um papo reto sobre quanta energia e água as Inteligências Artificiais gastam. O outro lado da moeda que ninguém te conta por trás dos bilhões de prompts.",
-    file: "/apresentacoes/ai_verge.pdf",
-    gradient: "from-green-500/20 to-emerald-900/20"
-  }
-];
-
 export const skills = [
   { 
     name: "Kotlin", 

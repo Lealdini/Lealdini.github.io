@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { usePrefersReducedMotion } from '../../utils/usePrefersReducedMotion';
 
 const ParallaxBackground = () => {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   // Use MotionValues to bypass React render cycle for high-frequency events like mousemove
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -22,6 +25,8 @@ const ParallaxBackground = () => {
   const foreY = useTransform(smoothMouseY, [-1, 1], [60, -60]);
 
   useEffect(() => {
+    if (prefersReducedMotion) return undefined;
+
     const handleMouseMove = (e) => {
       // Normalize mouse coordinates to range [-1, 1]
       const x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -30,19 +35,21 @@ const ParallaxBackground = () => {
       mouseY.set(y);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, prefersReducedMotion]);
 
-  // Generate particles ONLY ONCE to prevent flickering on re-renders
-  const particles = useMemo(() => Array.from({ length: 40 }).map((_, i) => ({
+  // Generate particles ONLY ONCE to prevent flickering on re-renders.
+  // Reduce density when the user opted into reduced motion.
+  const particleCount = prefersReducedMotion ? 0 : 40;
+  const particles = useMemo(() => Array.from({ length: particleCount }).map((_, i) => ({
     id: i,
     size: Math.random() * 3 + 1,
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
     animationDuration: `${Math.random() * 15 + 10}s`,
     opacity: Math.random() * 0.4 + 0.1,
-  })), []);
+  })), [particleCount]);
 
   const symbols = useMemo(() => [
     { text: "@Composable", left: "12%", top: "25%", rotate: -10, delay: 0 },
@@ -121,20 +128,20 @@ const ParallaxBackground = () => {
       >
         {symbols.map((sym, i) => (
           <motion.div
-            key={i}
+            key={sym.text}
+            aria-hidden="true"
             className="absolute font-mono text-emerald-700 dark:text-accent font-bold text-lg md:text-xl drop-shadow-[0_0_10px_rgba(4,120,87,0.3)] dark:drop-shadow-[0_0_15px_rgba(74,222,128,0.8)] select-none transition-colors duration-500"
             style={{ left: sym.left, top: sym.top, rotate: sym.rotate }}
-            animate={{ 
-              y: [0, -20, 0],
-              opacity: [0.6, 1, 0.6],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{
-              duration: 5 + i,
-              repeat: Infinity,
-              delay: sym.delay,
-              ease: "easeInOut"
-            }}
+            animate={
+              prefersReducedMotion
+                ? { y: 0, opacity: 0.8, scale: 1 }
+                : { y: [0, -20, 0], opacity: [0.6, 1, 0.6], scale: [1, 1.05, 1] }
+            }
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { duration: 5 + i, repeat: Infinity, delay: sym.delay, ease: 'easeInOut' }
+            }
           >
             {sym.text}
           </motion.div>

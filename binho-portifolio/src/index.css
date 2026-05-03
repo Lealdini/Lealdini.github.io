@@ -5,6 +5,9 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Tells the browser our site supports both schemes — improves native UI
+       (form fields, scrollbars) when the user swaps themes. */
+    color-scheme: light dark;
   }
   body {
     @apply bg-background text-primary font-sans antialiased selection:bg-accent/30 selection:text-white;
@@ -28,7 +31,7 @@
   @apply bg-zinc-400 dark:bg-[#555555];
 }
 
-/* Utilities for Glassmorphism */
+/* Glassmorphism utilities */
 @layer utilities {
   .glass {
     @apply bg-white/60 dark:bg-white/5 backdrop-blur-md border border-zinc-200 dark:border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)];
@@ -36,4 +39,53 @@
   .glass-hover {
     @apply hover:bg-white/80 dark:hover:bg-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all duration-300;
   }
+}
+
+/* ------------------------------------------------------------------
+   View Transition: circular reveal when swapping theme.
+   The keyframes themselves are driven from JS (Web Animations API)
+   so we can read the click coordinates dynamically. The rules below
+   just disable the default cross-fade and pin stacking order so the
+   new theme paints on top during the reveal.
+   ------------------------------------------------------------------ */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+  ::view-transition-new(root) {
+    z-index: 2;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Skeleton shimmer used while lazy sections are loading.
+   ------------------------------------------------------------------ */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-line {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-line::after { animation: none; }
 }

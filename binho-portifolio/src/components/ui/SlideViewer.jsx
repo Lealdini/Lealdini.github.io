@@ -24,6 +24,9 @@ const SlideViewer = ({ pdfUrl, onClose }) => {
     <AnimatePresence>
       {pdfUrl && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Visualizador de slides"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -53,6 +56,9 @@ const SlideViewer = ({ pdfUrl, onClose }) => {
             <iframe
               src={`${pdfUrl}#view=FitH&toolbar=0&navpanes=0`}
               title="Visualizador de Slides PDF"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
               className="hidden md:block w-full h-full border-none"
             />
             

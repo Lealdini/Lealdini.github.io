@@ -1,15 +1,22 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, Suspense, lazy } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Presentation, Download, Eye } from 'lucide-react';
-import SlideViewer from '../ui/SlideViewer';
 import { useLanguage } from '../../i18n/LanguageContext';
+import Trans from '../../i18n/Trans';
+
+// SlideViewer is heavy (modal + iframe lifecycle) and only needed when
+// the user clicks a talk. Code-split it so the rest of the page stays light.
+const SlideViewer = lazy(() => import('../ui/SlideViewer'));
+
+const Bold = (
+  <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500" />
+);
 
 const TechTalks = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activePDF, setActivePDF] = useState(null);
-  const { t, language } = useLanguage();
-  const isPt = language === 'pt';
+  const { t } = useLanguage();
 
   const talksData = [
     {
@@ -66,11 +73,7 @@ const TechTalks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, delay: 0.2 }}
         >
-          {isPt ? (
-            <>Apaixonado por formar e mentorar novos engenheiros, impulsionar a melhoria contínua de <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">UI/UX</span> e engajado em iniciativas <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">ESG</span> para construir um futuro sustentável na tecnologia.</>
-          ) : (
-            <>Passionate about building and mentoring new engineers, driving continuous <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">UI/UX</span> improvement, and engaged in <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500">ESG</span> initiatives to build a sustainable future in tech.</>
-          )}
+          <Trans i18nKey="tech_talks.subtitle" components={[Bold, Bold]} />
         </motion.p>
       </div>
 
@@ -131,11 +134,12 @@ const TechTalks = () => {
         ))}
       </motion.div>
 
-      {/* Slide Viewer Modal */}
-      <SlideViewer 
-        pdfUrl={activePDF} 
-        onClose={() => setActivePDF(null)} 
-      />
+      {/* Slide Viewer Modal — lazy-loaded on first open */}
+      {activePDF && (
+        <Suspense fallback={null}>
+          <SlideViewer pdfUrl={activePDF} onClose={() => setActivePDF(null)} />
+        </Suspense>
+      )}
     </section>
   );
 };

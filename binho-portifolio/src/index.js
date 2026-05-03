@@ -2,7 +2,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { LanguageProvider } from './i18n/LanguageContext';
 
 const root = createRoot(document.getElementById('root'));
@@ -13,5 +12,3 @@ root.render(
     </LanguageProvider>
   </React.StrictMode>
 );
-
-reportWebVitals();
