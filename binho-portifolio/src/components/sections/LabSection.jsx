@@ -1,9 +1,8 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Sparkles, Code2, Database } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import Trans from '../../i18n/Trans';
-import PhoneMockup from '../ui/PhoneMockup';
 
 const Bold = (
   <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500" />
@@ -49,10 +48,6 @@ const LabSection = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent to-transparent -translate-x-full group-hover:animate-border-beam opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         
         <div className="relative w-full glass bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-[2rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-10 transition-colors duration-500 z-10">
-          
-          <div className="w-full md:w-1/3 flex items-center justify-center py-4">
-            <PhoneMockup />
-          </div>
 
           <div className="w-full md:w-2/3 flex flex-col justify-center">
             <span className="text-xs font-bold tracking-widest text-accent uppercase mb-4 flex items-center gap-2">

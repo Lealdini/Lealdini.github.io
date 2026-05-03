@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -10,7 +10,6 @@ const SlideViewer = ({ pdfUrl, onClose }) => {
     
     if (pdfUrl) {
       window.addEventListener('keydown', handleKeyDown);
-      // Opcional: Impedir rolagem do body quando o modal estiver aberto
       document.body.style.overflow = 'hidden';
     }
 
