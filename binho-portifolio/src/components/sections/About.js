@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import Section from '../ui/Section';
 import { useLanguage } from '../../i18n/LanguageContext';
 import Trans from '../../i18n/Trans';
 
@@ -30,48 +31,56 @@ const pad = (n) => n.toString().padStart(2, '0');
 
 const About = () => {
   const { t, language } = useLanguage();
+  const sectionRef = useRef(null);
+  // Counter só roda quando a seção está visível — economiza CPU/bateria.
+  const isInView = useInView(sectionRef, { margin: '-10% 0px' });
+
   const [exp, setExp] = useState(() => computeDelta(new Date()));
 
   useEffect(() => {
+    if (!isInView) return undefined;
     const id = setInterval(() => setExp(computeDelta(new Date())), 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [isInView]);
 
   const counterLabel =
     language === 'pt'
       ? `${exp.years} anos, ${exp.months} meses, ${exp.days} dias, ${pad(exp.hours)}:${pad(exp.minutes)}:${pad(exp.seconds)}`
       : `${exp.years} years, ${exp.months} months, ${exp.days} days, ${pad(exp.hours)}:${pad(exp.minutes)}:${pad(exp.seconds)}`;
 
-  // The middle of the sentence is a live counter; we wrap it in an aria-live
-  // region so screen readers announce time updates politely.
   const accentText = (
-    <span className="font-mono font-medium text-accent text-[0.85em] inline-block" aria-live="polite">
+    <span
+      className="font-mono font-medium text-accent text-[0.85em] inline-block tabular-nums"
+      aria-live="polite"
+    >
       {counterLabel}
     </span>
   );
 
-  const boldName = <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500" />;
+  const boldName = <span className="font-semibold text-primary" />;
 
   return (
-    <section id="code" className="py-32 px-6 relative">
-      <div className="max-w-4xl mx-auto text-center">
+    <Section id="code" width="narrow" ariaLabel={t('about.section_title')}>
+      <div ref={sectionRef} className="text-center">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h2 className="text-sm font-bold tracking-widest text-accent uppercase mb-8">
+          <h2 className="eyebrow mb-6">
             {t('about.section_title')}
           </h2>
-          <p className="text-2xl md:text-4xl lg:text-5xl font-light text-zinc-700 dark:text-primary leading-snug md:leading-tight transition-colors duration-500">
-            {t('about.prefix')}
-            {accentText}
-            <Trans i18nKey="about.suffix" components={[boldName, boldName, boldName]} />
+          <p className="text-h4 md:text-h2 font-light text-secondary leading-snug md:leading-tight">
+            <span className="text-primary font-normal">
+              {t('about.prefix')}
+              {accentText}
+              <Trans i18nKey="about.suffix" components={[boldName, boldName, boldName]} />
+            </span>
           </p>
         </motion.div>
       </div>
-    </section>
+    </Section>
   );
 };
 

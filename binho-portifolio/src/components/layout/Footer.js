@@ -1,12 +1,35 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
+import Container from '../ui/Container';
+import Button from '../ui/Button';
 import SmileyEasterEgg from '../anim/SmileyEasterEgg';
 import { useLanguage } from '../../i18n/LanguageContext';
 
-// Email is split at build time and only joined at runtime to slow down
-// naive HTML scrapers. (Determined attackers will still find it; the goal
-// is to keep it out of the easiest plain-text grabs.)
+// LinkedIn icon — inline (lucide-react@1.14.0 não exporta o `Linkedin`)
+const LinkedinIcon = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const easeApple = [0.16, 1, 0.3, 1];
+
+// Email é montado em runtime para dificultar scrapers ingênuos.
 const EMAIL_USER = 'lealdinifabio';
 const EMAIL_DOMAIN = 'gmail.com';
 const getEmail = () => `${EMAIL_USER}@${EMAIL_DOMAIN}`;
@@ -25,10 +48,40 @@ const buildMailto = ({ name, email, message, subject }) => {
   return `mailto:${getEmail()}?${params.toString()}`;
 };
 
+// Input com label flutuante (Material 3 style).
+const FloatingField = ({ id, name, type = 'text', label, value, onChange, required, autoComplete, multiline = false, rows = 4 }) => {
+  const Tag = multiline ? 'textarea' : 'input';
+  return (
+    <div className="relative">
+      <Tag
+        id={id}
+        type={multiline ? undefined : type}
+        name={name}
+        rows={multiline ? rows : undefined}
+        value={value}
+        onChange={onChange}
+        required={required}
+        autoComplete={autoComplete}
+        placeholder=" "
+        className={`peer w-full px-4 pt-6 pb-2 bg-surface-1 border border-border-default rounded-2xl text-primary text-body
+          focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30
+          transition-all duration-base ease-apple resize-none placeholder:text-transparent`}
+      />
+      <label
+        htmlFor={id}
+        className={`absolute left-4 top-2 text-caption text-muted transition-all duration-base ease-apple pointer-events-none
+          peer-placeholder-shown:top-4 peer-placeholder-shown:text-small peer-placeholder-shown:text-muted
+          peer-focus:top-2 peer-focus:text-caption peer-focus:text-accent`}
+      >
+        {label}
+      </label>
+    </div>
+  );
+};
+
 const Footer = () => {
   const { t } = useLanguage();
   const email = useMemo(getEmail, []);
-
   const [form, setForm] = useState({ name: '', email: '', message: '', website: '' });
   const [opening, setOpening] = useState(false);
 
@@ -38,8 +91,7 @@ const Footer = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Honeypot — only bots fill this; silently drop.
-    if (form.website) return;
+    if (form.website) return; // honeypot
 
     const href = buildMailto({
       name: form.name.trim(),
@@ -50,114 +102,119 @@ const Footer = () => {
 
     setOpening(true);
     window.location.href = href;
-    // Reset the "opening" hint after a short delay so it doesn't linger.
     setTimeout(() => setOpening(false), 4000);
   };
 
   return (
-    <footer className="py-24 px-6 border-t border-zinc-200 dark:border-white/5 relative overflow-hidden mt-20 transition-colors duration-500">
-      <div className="max-w-4xl mx-auto text-center relative z-10">
+    <footer
+      id="contact"
+      aria-label="Contato"
+      className="relative section-tight border-t border-border-subtle overflow-hidden"
+    >
+      <Container width="narrow" className="relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.7, ease: easeApple }}
+          className="text-center"
         >
-          <h2 className="text-4xl md:text-5xl font-black text-zinc-900 dark:text-white mb-10 transition-colors duration-500">
-            {t('footer.title_line1')}<br />{t('footer.title_line2')}
+          <h2 className="eyebrow mb-4">
+            {t('nav.contact') || 'Contato'}
           </h2>
+          <h3 className="text-h2 md:text-h1 font-semibold text-primary tracking-tight mb-4">
+            {t('footer.title_line1')}
+            <br />
+            <span className="text-secondary">{t('footer.title_line2')}</span>
+          </h3>
+          <p className="text-body-lg text-secondary max-w-xl mx-auto mb-10">
+            {t('footer.subtitle') || ''}
+          </p>
 
-          <div className="max-w-md mx-auto mb-10 text-left">
-            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-              <label htmlFor="contact-name" className="sr-only">{t('footer.form_name')}</label>
-              <input
-                id="contact-name"
-                type="text"
-                name="name"
-                autoComplete="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder={t('footer.form_name')}
-                required
-                className="w-full px-6 py-4 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-zinc-200 dark:border-white/10 rounded-2xl text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all placeholder:text-zinc-500 dark:placeholder:text-zinc-500"
-              />
-              <label htmlFor="contact-email" className="sr-only">{t('footer.form_email')}</label>
-              <input
-                id="contact-email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder={t('footer.form_email')}
-                required
-                className="w-full px-6 py-4 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-zinc-200 dark:border-white/10 rounded-2xl text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all placeholder:text-zinc-500 dark:placeholder:text-zinc-500"
-              />
-              <label htmlFor="contact-message" className="sr-only">{t('footer.form_message')}</label>
-              <textarea
-                id="contact-message"
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                placeholder={t('footer.form_message')}
-                required
-                rows="4"
-                className="w-full px-6 py-4 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-zinc-200 dark:border-white/10 rounded-2xl text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-none placeholder:text-zinc-500 dark:placeholder:text-zinc-500"
-              ></textarea>
-              {/* Honeypot — humans never see/fill this; bots usually do. */}
-              <input
-                type="text"
-                name="website"
-                tabIndex="-1"
-                autoComplete="off"
-                aria-hidden="true"
-                value={form.website}
-                onChange={handleChange}
-                className="hidden"
-              />
-              <button
-                type="submit"
-                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-accent text-zinc-900 font-bold rounded-2xl hover:bg-emerald-400 transition-colors duration-300 w-full justify-center shadow-[0_0_20px_rgba(74,222,128,0.2)]"
-              >
-                <Mail className="w-5 h-5" aria-hidden="true" />
-                <span>{t('footer.form_send')}</span>
-              </button>
-              <p
-                aria-live="polite"
-                className={`text-sm text-center text-zinc-500 dark:text-zinc-400 transition-opacity duration-300 ${opening ? 'opacity-100' : 'opacity-0'}`}
-              >
-                {t('footer.form_opening')}
-              </p>
-            </form>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <a
-              href={`mailto:${email}`}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-full hover:bg-zinc-800 dark:hover:bg-gray-200 transition-colors duration-300 w-full sm:w-auto justify-center"
+          <form onSubmit={handleSubmit} noValidate className="text-left flex flex-col gap-4 mb-10">
+            <FloatingField
+              id="contact-name"
+              name="name"
+              label={t('footer.form_name')}
+              value={form.name}
+              onChange={handleChange}
+              autoComplete="name"
+              required
+            />
+            <FloatingField
+              id="contact-email"
+              name="email"
+              type="email"
+              label={t('footer.form_email')}
+              value={form.email}
+              onChange={handleChange}
+              autoComplete="email"
+              required
+            />
+            <FloatingField
+              id="contact-message"
+              name="message"
+              label={t('footer.form_message')}
+              value={form.message}
+              onChange={handleChange}
+              required
+              multiline
+              rows={4}
+            />
+            {/* Honeypot — escondido pra humanos, atrai bots */}
+            <input
+              type="text"
+              name="website"
+              tabIndex="-1"
+              autoComplete="off"
+              aria-hidden="true"
+              value={form.website}
+              onChange={handleChange}
+              className="hidden"
+            />
+            <Button type="submit" variant="primary" size="lg" pill className="w-full">
+              <Send className="w-4 h-4" aria-hidden="true" />
+              <span>{t('footer.form_send')}</span>
+            </Button>
+            <p
+              aria-live="polite"
+              className={`text-small text-center text-muted transition-opacity duration-base ${
+                opening ? 'opacity-100' : 'opacity-0'
+              }`}
             >
-              <Mail className="w-5 h-5" aria-hidden="true" />
-              <span>{email}</span>
-            </a>
+              {t('footer.form_opening')}
+            </p>
+          </form>
 
-            <a
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <Button as="a" href={`mailto:${email}`} variant="secondary" size="md" pill className="w-full sm:w-auto">
+              <Mail className="w-4 h-4" aria-hidden="true" />
+              <span>{email}</span>
+            </Button>
+            <Button
+              as="a"
               href="https://www.linkedin.com/in/lealdini/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 glass rounded-full text-zinc-900 dark:text-white font-medium transition-all duration-300 w-full sm:w-auto justify-center"
+              variant="ghost"
+              size="md"
+              pill
+              className="w-full sm:w-auto"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="w-5 h-5 group-hover:text-[#0A66C2] transition-colors"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+              <LinkedinIcon className="w-4 h-4" />
               <span>LinkedIn</span>
-            </a>
+            </Button>
           </div>
         </motion.div>
 
         <SmileyEasterEgg />
 
-        <div className="mt-8 text-sm text-zinc-500 dark:text-secondary/60 font-light transition-colors duration-500">
-          <p>© {new Date().getFullYear()} {t('footer.copyright')}</p>
+        <div className="mt-12 text-center text-small text-muted">
+          <p>
+            © {new Date().getFullYear()} {t('footer.copyright')}
+          </p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

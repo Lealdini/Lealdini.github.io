@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
+import Navbar from './components/layout/Navbar';
 import ThemeToggle from './components/layout/ThemeToggle';
-import BackgroundMusic from './components/ui/BackgroundMusic';
 import ScrollProgress from './components/ui/ScrollProgress';
 import CustomCursor from './components/ui/CustomCursor';
 import BootIntro from './components/ui/BootIntro';
@@ -11,42 +11,58 @@ import Experience from './components/sections/Experience';
 import TechStack from './components/sections/TechStack';
 import Footer from './components/layout/Footer';
 import ScrollReveal from './components/anim/ScrollReveal';
+import { useLanguage } from './i18n/LanguageContext';
 
-// Below-the-fold sections — code-split so the initial bundle only carries
-// what's painted in the first viewport.
+// Below-the-fold + non-essential chrome → code-split.
 const TechTalks = lazy(() => import('./components/sections/TechTalks'));
 const LabSection = lazy(() => import('./components/sections/LabSection'));
+const BackgroundMusic = lazy(() => import('./components/ui/BackgroundMusic'));
 
 const sections = [
-  { id: 'hero', Component: Hero, lazy: false },
-  { id: 'about', Component: About, lazy: false },
-  { id: 'experience', Component: Experience, lazy: false },
-  { id: 'tech-stack', Component: TechStack, lazy: false },
-  { id: 'tech-talks', Component: TechTalks, lazy: true },
-  { id: 'lab', Component: LabSection, lazy: true },
+  { id: 'hero', Component: Hero, lazy: false, reveal: false },
+  { id: 'about', Component: About, lazy: false, reveal: true },
+  { id: 'experience', Component: Experience, lazy: false, reveal: true },
+  { id: 'tech-stack', Component: TechStack, lazy: false, reveal: true },
+  { id: 'tech-talks', Component: TechTalks, lazy: true, reveal: true },
+  { id: 'lab', Component: LabSection, lazy: true, reveal: true },
 ];
 
 function App() {
+  const { t } = useLanguage();
+
   return (
-    <div className="bg-zinc-50 text-zinc-900 dark:bg-background dark:text-white min-h-screen overflow-x-hidden selection:bg-accent/30 selection:text-white transition-colors duration-500">
+    <div className="bg-background text-primary min-h-screen overflow-x-hidden">
+      {/* Skip link — escondido até foco */}
+      <a href="#main" className="skip-link">
+        {t('nav.skip_link')}
+      </a>
+
       <BootIntro />
       <CustomCursor />
       <ScrollProgress />
+      <Navbar />
       <ThemeToggle />
-      <BackgroundMusic />
-      <main>
-        {sections.map(({ id, Component, lazy: isLazy }) => (
-          <ScrollReveal key={id}>
-            {isLazy ? (
-              <Suspense fallback={<SectionSkeleton />}>
-                <Component />
-              </Suspense>
-            ) : (
+      <Suspense fallback={null}>
+        <BackgroundMusic />
+      </Suspense>
+
+      <main id="main" tabIndex={-1} className="focus:outline-none">
+        {sections.map(({ id, Component, lazy: isLazy, reveal }) => {
+          const node = isLazy ? (
+            <Suspense fallback={<SectionSkeleton />}>
               <Component />
-            )}
-          </ScrollReveal>
-        ))}
+            </Suspense>
+          ) : (
+            <Component />
+          );
+          return reveal ? (
+            <ScrollReveal key={id}>{node}</ScrollReveal>
+          ) : (
+            <React.Fragment key={id}>{node}</React.Fragment>
+          );
+        })}
       </main>
+
       <Footer />
     </div>
   );

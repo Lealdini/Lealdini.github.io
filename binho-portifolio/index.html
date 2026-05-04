@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#4ade80" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0A0B" />
+    <meta name="color-scheme" content="dark light" />
 
     <!-- Security headers (best-effort via meta on static hosting) -->
     <meta http-equiv="Content-Security-Policy"
@@ -14,6 +15,17 @@
 
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preload do portrait do hero — melhora LCP -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/binho-768.webp"
+      type="image/webp"
+      imagesrcset="/images/binho-512.webp 512w, /images/binho-768.webp 768w, /images/binho-1024.webp 1024w"
+      imagesizes="(max-width: 768px) 200px, 320px"
+      fetchpriority="high"
+    />
 
     <title>Fábio Lealdini | Portfolio</title>
     <meta name="title" content="Fábio Lealdini | Portfolio" />
@@ -35,8 +47,22 @@
     <meta property="twitter:title" content="Fábio Lealdini | Tech Lead & Android Developer" />
     <meta property="twitter:description" content="Android Developer & Tech Lead. Over 7 years turning coffee into apps used by millions. Check out my work, experiments with AI, and talks." />
     <meta property="twitter:image" content="https://lealdini.github.io/logo512.png" />
+
+    <!-- Inline script: aplica tema antes do paint para evitar flash -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = saved === 'light' || saved === 'dark' ? saved : (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-background">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/index.js"></script>

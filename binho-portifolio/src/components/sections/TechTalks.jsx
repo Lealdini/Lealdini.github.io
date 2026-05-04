@@ -1,20 +1,23 @@
 import React, { useRef, useState, Suspense, lazy } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Presentation, Download, Eye } from 'lucide-react';
+import Section from '../ui/Section';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 import { useLanguage } from '../../i18n/LanguageContext';
 import Trans from '../../i18n/Trans';
 
-// SlideViewer is heavy (modal + iframe lifecycle) and only needed when
-// the user clicks a talk. Code-split it so the rest of the page stays light.
 const SlideViewer = lazy(() => import('../ui/SlideViewer'));
 
+const easeApple = [0.16, 1, 0.3, 1];
+
 const Bold = (
-  <span className="font-semibold text-zinc-900 dark:text-white transition-colors duration-500" />
+  <span className="font-semibold text-primary" />
 );
 
 const TechTalks = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [activePDF, setActivePDF] = useState(null);
   const { t } = useLanguage();
 
@@ -24,123 +27,154 @@ const TechTalks = () => {
       tag: t('tech_talks.talk1_tag'),
       title: t('tech_talks.talk1_title'),
       description: t('tech_talks.talk1_desc'),
-      file: "/apresentacoes/falando_com_maquina.pdf",
-      gradient: "from-emerald-500/20 to-teal-900/20"
+      file: '/apresentacoes/falando_com_maquina.pdf',
+      gradient: 'from-accent/30 via-accent/10 to-transparent',
     },
     {
       id: 2,
       tag: t('tech_talks.talk2_tag'),
       title: t('tech_talks.talk2_title'),
       description: t('tech_talks.talk2_desc'),
-      file: "/apresentacoes/ai_verge.pdf",
-      gradient: "from-green-500/20 to-emerald-900/20"
-    }
+      file: '/apresentacoes/ai_verge.pdf',
+      gradient: 'from-info/30 via-info/10 to-transparent',
+    },
   ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.6, ease: "easeOut" } 
-    }
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeApple } },
   };
 
   return (
-    <section className="py-24 px-6 relative max-w-6xl mx-auto">
-      <div className="text-center mb-16">
-        <motion.h2 
-          className="text-4xl md:text-5xl font-black text-zinc-900 dark:text-white tracking-tight mb-4 transition-colors duration-500"
-          initial={{ opacity: 0, y: 20 }}
+    <Section id="tech-talks" width="page" ariaLabel={t('tech_talks.title')}>
+      <div className="text-center mb-12 md:mb-16">
+        <motion.h2
+          className="eyebrow mb-4"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: easeApple }}
+        >
+          {t('tech_talks.tag') || 'Tech Talks'}
+        </motion.h2>
+        <motion.h3
+          className="text-h2 md:text-h1 font-semibold text-primary tracking-tight mb-4"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1, ease: easeApple }}
         >
           {t('tech_talks.title')}
-        </motion.h2>
-        <motion.p 
-          className="text-lg text-zinc-600 dark:text-gray-400 font-light max-w-3xl mx-auto transition-colors duration-500"
-          initial={{ opacity: 0, y: 20 }}
+        </motion.h3>
+        <motion.p
+          className="text-body-lg text-secondary max-w-2xl mx-auto"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, delay: 0.2 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2, ease: easeApple }}
         >
           <Trans i18nKey="tech_talks.subtitle" components={[Bold, Bold]} />
         </motion.p>
       </div>
 
-      <motion.div 
+      <motion.div
         ref={ref}
-        className="grid grid-cols-1 md:grid-cols-2 gap-8"
+        className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6"
         variants={containerVariants}
         initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
+        animate={isInView ? 'visible' : 'hidden'}
       >
         {talksData.map((talk) => (
-          <motion.div
-            key={talk.id}
-            variants={cardVariants}
-            className="flex flex-col rounded-3xl overflow-hidden glass glass-hover cursor-pointer group"
-            onClick={() => setActivePDF(talk.file)}
-          >
-            {/* Capa */}
-            <div className={`h-48 bg-gradient-to-br ${talk.gradient} flex items-center justify-center relative`}>
-              <Presentation className="w-16 h-16 text-zinc-900/50 dark:text-white/50 group-hover:scale-110 transition-transform duration-500" />
-            </div>
-            
-            {/* Conteúdo */}
-            <div className="p-8 flex flex-col flex-grow">
-              <span className="text-xs font-bold tracking-widest text-accent uppercase mb-3 block">
-                {talk.tag}
-              </span>
-              <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4 transition-colors duration-500">
-                {talk.title}
-              </h3>
-              <p className="text-zinc-600 dark:text-gray-400 font-light mb-8 flex-grow transition-colors duration-500">
-                {talk.description}
-              </p>
-              
-              <div className="mt-auto flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActivePDF(talk.file);
+          <motion.div key={talk.id} variants={cardVariants}>
+            <Card
+              variant="elevated"
+              interactive
+              className="group flex flex-col overflow-hidden h-full"
+              onClick={() => setActivePDF(talk.file)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setActivePDF(talk.file);
+                }
+              }}
+            >
+              {/* Capa */}
+              <div
+                className={`h-44 md:h-48 bg-gradient-to-br ${talk.gradient} flex items-center justify-center relative overflow-hidden border-b border-border-subtle`}
+              >
+                {/* Padrão sutil de pontos */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-20"
+                  style={{
+                    backgroundImage:
+                      'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
+                    backgroundSize: '24px 24px',
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all duration-300 shadow-md"
-                >
-                  <Eye className="w-4 h-4" />
-                  <span>{t('tech_talks.read_slides')}</span>
-                </button>
-                <a 
-                  href={talk.file}
-                  download
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white/60 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-full text-zinc-900 dark:text-white font-medium hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-300"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>{t('tech_talks.download_pdf')}</span>
-                </a>
+                />
+                <Presentation
+                  className="w-14 h-14 text-primary/70 group-hover:scale-110 transition-transform duration-slow ease-apple relative z-10"
+                  aria-hidden="true"
+                />
               </div>
-            </div>
+
+              {/* Conteúdo */}
+              <div className="p-6 md:p-7 flex flex-col flex-grow">
+                <span className="eyebrow mb-3 block">{talk.tag}</span>
+                <h4 className="text-h4 font-semibold text-primary mb-3 leading-tight">
+                  {talk.title}
+                </h4>
+                <p className="text-body text-secondary leading-relaxed mb-6 flex-grow">
+                  {talk.description}
+                </p>
+
+                <div className="mt-auto flex flex-col sm:flex-row gap-3">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    pill
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePDF(talk.file);
+                    }}
+                  >
+                    <Eye className="w-4 h-4" aria-hidden="true" />
+                    <span>{t('tech_talks.read_slides')}</span>
+                  </Button>
+                  <Button
+                    as="a"
+                    href={talk.file}
+                    download
+                    variant="ghost"
+                    size="md"
+                    pill
+                    className="flex-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Download className="w-4 h-4" aria-hidden="true" />
+                    <span>{t('tech_talks.download_pdf')}</span>
+                  </Button>
+                </div>
+              </div>
+            </Card>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* Slide Viewer Modal — lazy-loaded on first open */}
       {activePDF && (
         <Suspense fallback={null}>
           <SlideViewer pdfUrl={activePDF} onClose={() => setActivePDF(null)} />
         </Suspense>
       )}
-    </section>
+    </Section>
   );
 };
 

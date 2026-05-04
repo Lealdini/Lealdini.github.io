@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Player de música de fundo.
+ *  - Desktop: chip flutuante bottom-right com play, mute e equalizer.
+ *  - Mobile: invisível, mas reage ao evento `binho:toggle-music` disparado
+ *    pelo botão compacto da Navbar mobile. Estado é emitido de volta via
+ *    `binho:music-state` para a navbar mostrar play/pause corretamente.
+ *
+ * Mantém um único <audio> no DOM independente do dispositivo.
+ */
 const BackgroundMusic = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -9,7 +18,6 @@ const BackgroundMusic = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [showVolume, setShowVolume] = useState(false);
 
-  // Initialize audio settings
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
@@ -17,7 +25,7 @@ const BackgroundMusic = () => {
     }
   }, [volume]);
 
-  const togglePlay = async () => {
+  const togglePlay = useCallback(async () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -28,20 +36,37 @@ const BackgroundMusic = () => {
         await audioRef.current.play();
         setIsPlaying(true);
       } catch (err) {
-        console.warn("Audio playback prevented by browser policy:", err);
+        // Autoplay policy bloqueou — apenas log silencioso.
+        // eslint-disable-next-line no-console
+        console.warn('Audio playback prevented by browser policy:', err);
         setIsPlaying(false);
       }
     }
-  };
+  }, [isPlaying]);
+
+  // Escuta evento da navbar mobile + emite estado quando muda.
+  useEffect(() => {
+    const handleToggle = () => {
+      togglePlay();
+    };
+    window.addEventListener('binho:toggle-music', handleToggle);
+    return () => window.removeEventListener('binho:toggle-music', handleToggle);
+  }, [togglePlay]);
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('binho:music-state', { detail: isPlaying })
+    );
+  }, [isPlaying]);
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
-    
+
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
-    
+
     if (newVolume === 0) {
       setIsMuted(true);
     } else if (isMuted) {
@@ -51,7 +76,7 @@ const BackgroundMusic = () => {
 
   const toggleMute = () => {
     if (!audioRef.current) return;
-    
+
     if (isMuted) {
       audioRef.current.volume = volume > 0 ? volume : 0.2;
       if (volume === 0) setVolume(0.2);
@@ -65,80 +90,86 @@ const BackgroundMusic = () => {
   const bars = [1, 2, 3, 4];
 
   return (
-    <div className="fixed z-50 flex items-center gap-3 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/60 dark:border-white/10 shadow-lg rounded-full py-2 px-4 transition-colors duration-500 top-6 right-6 md:top-8 md:right-8">
-      {/* Hidden Audio Element — opus first (smallest), mp3 fallback for Safari < 17.5 */}
+    <>
+      {/* Audio element — sempre presente, controla playback */}
       <audio ref={audioRef} preload="none">
         <source src="/audio/alive.opus" type="audio/ogg; codecs=opus" />
         <source src="/audio/alive.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* Play / Pause Button */}
-      <button 
-        onClick={togglePlay}
-        className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-        aria-label={isPlaying ? "Pause music" : "Play music"}
-      >
-        {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-      </button>
-
-      {/* Volume Control */}
-      <div 
-        className="flex items-center gap-2"
-        onMouseEnter={() => setShowVolume(true)}
-        onMouseLeave={() => setShowVolume(false)}
-      >
-        <button 
-          onClick={toggleMute}
-          className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors flex items-center justify-center"
-          aria-label="Toggle Mute"
+      {/* UI desktop only — no mobile o controle vive na Navbar */}
+      <div className="fixed z-30 hidden md:flex items-center gap-3 bg-surface-1/80 backdrop-blur-nav border border-border-default shadow-elevated rounded-pill py-2 px-4 transition-colors duration-base ease-apple bottom-5 right-5">
+        {/* Play / Pause */}
+        <button
+          onClick={togglePlay}
+          className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/[0.06] text-primary hover:bg-primary/[0.12] transition-colors duration-base ease-apple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label={isPlaying ? 'Pausar música' : 'Tocar música'}
+          aria-pressed={isPlaying}
         >
-          {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
         </button>
 
-        <AnimatePresence>
-          {showVolume && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "60px", opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              className="overflow-hidden hidden md:flex items-center"
-            >
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.05" 
-                value={isMuted ? 0 : volume} 
-                onChange={handleVolumeChange}
-                className="w-full h-1.5 bg-zinc-300 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                aria-label="Volume"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        {/* Volume */}
+        <div
+          className="flex items-center gap-2"
+          onMouseEnter={() => setShowVolume(true)}
+          onMouseLeave={() => setShowVolume(false)}
+        >
+          <button
+            onClick={toggleMute}
+            className="text-muted hover:text-primary transition-colors duration-base ease-apple flex items-center justify-center min-w-[36px] min-h-[36px] rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={isMuted ? 'Desmutar' : 'Mutar'}
+            aria-pressed={isMuted}
+          >
+            {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
 
-      {/* Equalizer Visualizer */}
-      <div className="flex items-end h-4 gap-[2px] ml-1">
-        {bars.map((bar) => (
-          <motion.div
-            key={bar}
-            className="w-1 bg-emerald-500 dark:bg-accent rounded-t-sm origin-bottom"
-            animate={{
-              height: isPlaying && !isMuted && volume > 0
-                ? ["20%", "100%", "40%", "80%", "20%"] 
-                : "20%",
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: bar * 0.15, // stagger the animation
-            }}
-          />
-        ))}
+          <AnimatePresence>
+            {showVolume && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '60px', opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                className="overflow-hidden flex items-center"
+              >
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="w-full h-1 bg-primary/[0.10] rounded-lg appearance-none cursor-pointer accent-accent"
+                  aria-label="Volume"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Equalizer */}
+        <div className="flex items-end h-4 gap-[2px] ml-1" aria-hidden="true">
+          {bars.map((bar) => (
+            <motion.div
+              key={bar}
+              className="w-1 bg-accent rounded-t-sm origin-bottom"
+              animate={{
+                height:
+                  isPlaying && !isMuted && volume > 0
+                    ? ['20%', '100%', '40%', '80%', '20%']
+                    : '20%',
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: bar * 0.15,
+              }}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

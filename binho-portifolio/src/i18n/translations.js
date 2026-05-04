@@ -1,6 +1,15 @@
 // Force HMR reload
 export const translations = {
   pt: {
+    nav: {
+      skip_link: "Pular para o conteúdo",
+      about: "Sobre",
+      experience: "Experiência",
+      skills: "Skills",
+      talks: "Palestras",
+      lab: "Lab",
+      contact: "Contato"
+    },
     hero: {
       title1: "Código bom, café quente",
       title2: "& apps incríveis.",
@@ -27,6 +36,7 @@ export const translations = {
     },
     lab: {
       section_title: "Meu Laboratório",
+      title: "O que ando testando.",
       subtitle: "Onde eu misturo <1>Inteligência Artificial</1>, código e um pouco de loucura.",
       highlight: "Destaque",
       project_title: "Oracle.Ai 🔮",
@@ -53,6 +63,7 @@ export const translations = {
     footer: {
       title_line1: "Pronto para escalar",
       title_line2: "o próximo projeto?",
+      subtitle: "Vamos conversar sobre código, café e como construir algo memorável juntos.",
       form_name: "Seu nome",
       form_email: "Seu e-mail",
       form_message: "Como posso ajudar?",
@@ -63,6 +74,15 @@ export const translations = {
     }
   },
   en: {
+    nav: {
+      skip_link: "Skip to content",
+      about: "About",
+      experience: "Experience",
+      skills: "Skills",
+      talks: "Talks",
+      lab: "Lab",
+      contact: "Contact"
+    },
     hero: {
       title1: "Good code, hot coffee",
       title2: "& awesome apps.",
@@ -89,6 +109,7 @@ export const translations = {
     },
     lab: {
       section_title: "My Lab",
+      title: "What I'm testing.",
       subtitle: "Where I mix <1>Artificial Intelligence</1>, code, and a bit of madness.",
       highlight: "Highlight",
       project_title: "Oracle.Ai 🔮",
@@ -115,6 +136,7 @@ export const translations = {
     footer: {
       title_line1: "Ready to scale",
       title_line2: "the next project?",
+      subtitle: "Let's talk about code, coffee, and how to build something memorable together.",
       form_name: "Your name",
       form_email: "Your email",
       form_message: "How can I help?",

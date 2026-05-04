@@ -49,20 +49,21 @@ const CustomCursor = () => {
     <>
       <motion.div
         aria-hidden="true"
-        className="fixed top-0 left-0 w-3 h-3 bg-accent rounded-full pointer-events-none z-[100] mix-blend-difference hidden md:block"
+        className="fixed top-0 left-0 w-2 h-2 bg-accent rounded-full pointer-events-none z-[100] hidden md:block"
         style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
-        animate={{ scale: isHovering ? 2.5 : 1 }}
+        animate={{ scale: isHovering ? 0 : 1, opacity: isHovering ? 0 : 0.9 }}
         transition={{ type: 'tween', ease: 'backOut', duration: 0.15 }}
       />
       <motion.div
         aria-hidden="true"
-        className="fixed top-0 left-0 w-8 h-8 border border-accent rounded-full pointer-events-none z-[99] hidden md:block"
+        className="fixed top-0 left-0 w-9 h-9 border border-accent/60 rounded-full pointer-events-none z-[99] hidden md:block"
         style={{ x: smoothX, y: smoothY, translateX: '-50%', translateY: '-50%' }}
         animate={{
-          scale: isHovering ? 1.5 : 1,
-          backgroundColor: isHovering ? 'rgba(74, 222, 128, 0.1)' : 'rgba(0, 0, 0, 0)',
+          scale: isHovering ? 1.4 : 1,
+          backgroundColor: isHovering ? 'rgba(34, 197, 94, 0.10)' : 'rgba(0, 0, 0, 0)',
+          borderColor: isHovering ? 'rgba(34, 197, 94, 0.9)' : 'rgba(34, 197, 94, 0.45)',
         }}
-        transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
+        transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
       />
     </>
   );

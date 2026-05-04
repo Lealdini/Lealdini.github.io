@@ -1,71 +1,79 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Section from '../ui/Section';
 import { skills } from '../../data/content';
 import { useLanguage } from '../../i18n/LanguageContext';
+
+const easeApple = [0.16, 1, 0.3, 1];
 
 const TechStack = () => {
   const { t, language } = useLanguage();
   const [selectedSkill, setSelectedSkill] = useState(null);
 
   return (
-    <section id="tech-stack" className="py-24 px-6 relative max-w-4xl mx-auto overflow-hidden">
-      <div className="text-center mb-16">
-        <motion.h2 
-          className="text-sm font-bold tracking-widest text-accent uppercase mb-8"
-          initial={{ opacity: 0, y: 20 }}
+    <Section id="tech-stack" width="narrow" ariaLabel={t('tech_stack.section_title')}>
+      <div className="text-center mb-12 md:mb-14">
+        <motion.h2
+          className="eyebrow mb-5"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6, ease: easeApple }}
         >
           {t('tech_stack.section_title')}
         </motion.h2>
 
-        <motion.h3 
-          className="text-4xl md:text-5xl font-black text-zinc-900 dark:text-white tracking-tight mb-4 transition-colors duration-500"
-          initial={{ opacity: 0, y: 20 }}
+        <motion.h3
+          className="text-h2 md:text-h1 font-semibold text-primary tracking-tight mb-4"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: easeApple }}
         >
           {t('tech_stack.title')}
         </motion.h3>
-        
-        <motion.p 
-          className="text-lg text-zinc-600 dark:text-zinc-400 font-light transition-colors duration-500"
-          initial={{ opacity: 0, y: 20 }}
+
+        <motion.p
+          className="text-body-lg text-secondary max-w-xl mx-auto"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: easeApple }}
         >
           {t('tech_stack.subtitle')}
         </motion.p>
       </div>
 
-      <motion.div 
-        className="flex flex-wrap justify-center gap-3 md:gap-4 mb-12"
+      <motion.div
+        className="flex flex-wrap justify-center gap-2 md:gap-2.5"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, margin: '-100px' }}
         variants={{
           hidden: {},
-          visible: {
-            transition: { staggerChildren: 0.05 }
-          }
+          visible: { transition: { staggerChildren: 0.04 } },
         }}
+        role="tablist"
+        aria-label={t('tech_stack.title')}
       >
-        {skills.map((skill, index) => {
+        {skills.map((skill) => {
           const isSelected = selectedSkill?.name === skill.name;
           return (
             <motion.button
-              key={index}
+              key={skill.name}
+              type="button"
               onClick={() => setSelectedSkill(isSelected ? null : skill)}
+              role="tab"
+              aria-selected={isSelected}
+              aria-controls="tech-stack-detail"
               variants={{
-                hidden: { opacity: 0, scale: 0.8 },
-                visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
+                hidden: { opacity: 0, scale: 0.96 },
+                visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: easeApple } },
               }}
-              className={`px-6 py-3 rounded-full font-medium tracking-wide transition-all duration-300 ${
-                isSelected 
-                  ? 'bg-accent text-zinc-900 shadow-[0_0_20px_rgba(74,222,128,0.4)] border-accent' 
-                  : 'glass text-zinc-800 dark:text-primary hover:border-accent/50 cursor-pointer'
+              className={`min-h-[44px] px-5 py-2.5 rounded-pill font-medium text-small tracking-tight transition-all duration-base ease-apple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                isSelected
+                  ? 'bg-accent text-white shadow-glow-soft border border-accent'
+                  : 'bg-primary/[0.04] text-primary border border-border-default hover:bg-primary/[0.08] hover:border-border-strong'
               }`}
             >
               {skill.name}
@@ -74,23 +82,23 @@ const TechStack = () => {
         })}
       </motion.div>
 
-      <div className="w-full flex justify-center">
+      <div id="tech-stack-detail" className="w-full flex justify-center mt-6">
         <AnimatePresence mode="wait">
           {selectedSkill && (
             <motion.div
               key={selectedSkill.name}
-              initial={{ opacity: 0, height: 0, scale: 0.98 }}
-              animate={{ opacity: 1, height: "auto", scale: 1 }}
-              exit={{ opacity: 0, height: 0, scale: 0.98 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              initial={{ opacity: 0, height: 0, y: -4 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -4 }}
+              transition={{ duration: 0.3, ease: easeApple }}
               className="w-full overflow-hidden"
             >
-              <div className="p-8 mt-4 rounded-3xl glass border border-accent/20 bg-white/50 dark:bg-white/5 text-center shadow-lg relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <h4 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4 transition-colors duration-500 relative z-10">
+              <div className="p-6 md:p-8 mt-2 rounded-2xl bg-surface-1 border border-accent/20 text-center shadow-card relative overflow-hidden">
+                <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-br from-accent/[0.05] via-transparent to-transparent" />
+                <h4 className="text-h4 font-semibold text-primary mb-3 relative z-10">
                   {selectedSkill.name}
                 </h4>
-                <p className="text-lg text-zinc-700 dark:text-zinc-300 font-light leading-relaxed transition-colors duration-500 relative z-10">
+                <p className="text-body text-secondary leading-relaxed relative z-10">
                   {language === 'pt' ? selectedSkill.pt : selectedSkill.en}
                 </p>
               </div>
@@ -98,7 +106,7 @@ const TechStack = () => {
           )}
         </AnimatePresence>
       </div>
-    </section>
+    </Section>
   );
 };
 

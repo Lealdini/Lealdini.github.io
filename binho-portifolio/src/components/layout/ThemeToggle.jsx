@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { motion } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { safeStorage } from '../../utils/safeStorage';
 
@@ -12,13 +14,14 @@ const getInitialTheme = () => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
-// Circular reveal when toggling theme — origin is the click coordinates,
-// so the new palette "blooms" out from the button the user pressed.
-// Falls back gracefully on browsers without the View Transitions API,
-// or when the user opted into reduced motion.
+// Circular reveal no toggle de tema
 const swapTheme = (e, applyChange) => {
-  const supports = typeof document !== 'undefined' && typeof document.startViewTransition === 'function';
-  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const supports =
+    typeof document !== 'undefined' &&
+    typeof document.startViewTransition === 'function';
+  const reduce =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!supports || reduce) {
     applyChange();
@@ -32,12 +35,10 @@ const swapTheme = (e, applyChange) => {
     Math.max(y, window.innerHeight - y)
   );
 
-  document.documentElement.style.setProperty('--vt-x', `${x}px`);
-  document.documentElement.style.setProperty('--vt-y', `${y}px`);
-  document.documentElement.style.setProperty('--vt-r', `${endRadius}px`);
-
   const transition = document.startViewTransition(() => {
-    applyChange();
+    flushSync(() => {
+      applyChange();
+    });
   });
 
   transition.ready
@@ -56,19 +57,22 @@ const swapTheme = (e, applyChange) => {
         }
       );
     })
-    .catch(() => { /* noop — fallback already applied */ });
+    .catch(() => {
+      /* fallback already applied */
+    });
 };
 
-const toggleStyles =
-  'rotate-0 md:-rotate-90 text-zinc-800 dark:text-zinc-200 font-mono text-xs md:text-[10px] uppercase tracking-widest cursor-pointer select-none origin-center transition-colors duration-500 md:mb-2 md:mt-2 bg-transparent border-0 p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded';
-
+/**
+ * Dock flutuante consolidada: tema (light/dark) + idioma (pt/en).
+ *  - Mobile: bottom-center, horizontal (junto da BackgroundMusic via bottom-bar).
+ *  - Desktop: left-center vertical.
+ *  - Touch targets ≥40px no mobile.
+ */
 export default function ThemeToggle() {
   const [theme, setTheme] = useState(getInitialTheme);
   const { language, toggleLanguage } = useLanguage();
   const isFirstRender = useRef(true);
 
-  // Apply the persisted theme synchronously on first mount (no transition).
-  // After that, every toggle goes through swapTheme() with a circular reveal.
   useEffect(() => {
     safeStorage.set(STORAGE_KEY, theme);
     if (theme === 'dark') {
@@ -81,83 +85,96 @@ export default function ThemeToggle() {
 
   const setThemeAnimated = (e, next) => {
     if (next === theme) return;
-    swapTheme(e, () => setTheme(next));
+    swapTheme(e, () => {
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      setTheme(next);
+    });
   };
 
   const isDark = theme === 'dark';
   const isPt = language === 'pt';
 
-  const animFor = (active) => ({
-    filter: active ? 'blur(0px)' : 'blur(2px)',
-    opacity: active ? 1 : 0.4,
-    scale: active ? 1.05 : 0.9,
-  });
-
   return (
     <div
       role="toolbar"
-      aria-label="Theme and language preferences"
-      className="fixed z-50 flex items-center justify-center transition-all duration-500 rounded-full backdrop-blur-xl border shadow-lg
-        bottom-6 left-1/2 -translate-x-1/2 flex-row gap-4 py-3 px-6
-        bg-white/70 dark:bg-zinc-900/60 border-zinc-200/60 dark:border-white/10
-        md:bottom-auto md:top-1/2 md:left-6 md:-translate-x-0 md:-translate-y-1/2 md:flex-col md:py-6 md:px-3"
+      aria-label="Preferências de tema e idioma"
+      className="fixed z-40 flex items-center transition-all duration-slow ease-apple
+        bottom-5 left-1/2 -translate-x-1/2 flex-row gap-1 p-1
+        bg-surface-1/80 backdrop-blur-nav border border-border-default rounded-pill shadow-elevated
+        md:bottom-auto md:top-1/2 md:left-5 md:-translate-x-0 md:-translate-y-1/2 md:flex-col md:gap-1 md:p-1"
     >
-      {/* LANGUAGE TOGGLE */}
-      <motion.button
-        type="button"
-        onClick={() => !isPt && toggleLanguage()}
-        aria-pressed={isPt}
-        aria-label="Português"
-        animate={animFor(isPt)}
-        transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className={toggleStyles}
-      >
-        pt
-      </motion.button>
+      {/* IDIOMA */}
+      <div className="flex md:flex-col gap-0.5">
+        <motion.button
+          type="button"
+          onClick={() => !isPt && toggleLanguage()}
+          aria-pressed={isPt}
+          aria-label="Português"
+          whileTap={{ scale: 0.94 }}
+          className={`min-w-[40px] min-h-[40px] px-3 rounded-full text-caption font-mono font-medium uppercase tracking-widest transition-colors duration-base ease-apple ${
+            isPt
+              ? 'bg-primary/[0.10] text-primary'
+              : 'text-muted hover:text-secondary hover:bg-primary/[0.04]'
+          }`}
+        >
+          pt
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={() => isPt && toggleLanguage()}
+          aria-pressed={!isPt}
+          aria-label="English"
+          whileTap={{ scale: 0.94 }}
+          className={`min-w-[40px] min-h-[40px] px-3 rounded-full text-caption font-mono font-medium uppercase tracking-widest transition-colors duration-base ease-apple ${
+            !isPt
+              ? 'bg-primary/[0.10] text-primary'
+              : 'text-muted hover:text-secondary hover:bg-primary/[0.04]'
+          }`}
+        >
+          en
+        </motion.button>
+      </div>
 
-      <div className="bg-zinc-400/50 dark:bg-zinc-600/50 rounded-full transition-all duration-500 w-[1px] h-3 md:w-3 md:h-[1px]" />
+      <div
+        className="bg-border-default rounded-full mx-1 md:mx-0 md:my-1 w-px h-5 md:w-5 md:h-px"
+        aria-hidden="true"
+      />
 
-      <motion.button
-        type="button"
-        onClick={() => isPt && toggleLanguage()}
-        aria-pressed={!isPt}
-        aria-label="English"
-        animate={animFor(!isPt)}
-        transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className={toggleStyles}
-      >
-        en
-      </motion.button>
-
-      {/* SEPARATOR BETWEEN LANG AND THEME */}
-      <div className="bg-zinc-300 dark:bg-zinc-700 transition-all duration-500 w-[2px] h-5 md:w-5 md:h-[2px] mx-1 md:my-1" aria-hidden="true" />
-
-      {/* THEME TOGGLE */}
-      <motion.button
-        type="button"
-        onClick={(e) => setThemeAnimated(e, 'light')}
-        aria-pressed={!isDark}
-        aria-label="Light theme"
-        animate={animFor(!isDark)}
-        transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className={toggleStyles}
-      >
-        light
-      </motion.button>
-
-      <div className="bg-zinc-400/50 dark:bg-zinc-600/50 rounded-full transition-all duration-500 w-[1px] h-3 md:w-3 md:h-[1px]" />
-
-      <motion.button
-        type="button"
-        onClick={(e) => setThemeAnimated(e, 'dark')}
-        aria-pressed={isDark}
-        aria-label="Dark theme"
-        animate={animFor(isDark)}
-        transition={{ duration: 0.4, ease: 'easeInOut' }}
-        className={toggleStyles}
-      >
-        night
-      </motion.button>
+      {/* TEMA */}
+      <div className="flex md:flex-col gap-0.5">
+        <motion.button
+          type="button"
+          onClick={(e) => setThemeAnimated(e, 'light')}
+          aria-pressed={!isDark}
+          aria-label="Tema claro"
+          whileTap={{ scale: 0.94 }}
+          className={`min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors duration-base ease-apple ${
+            !isDark
+              ? 'bg-primary/[0.10] text-primary'
+              : 'text-muted hover:text-secondary hover:bg-primary/[0.04]'
+          }`}
+        >
+          <Sun className="w-4 h-4" aria-hidden="true" />
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={(e) => setThemeAnimated(e, 'dark')}
+          aria-pressed={isDark}
+          aria-label="Tema escuro"
+          whileTap={{ scale: 0.94 }}
+          className={`min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors duration-base ease-apple ${
+            isDark
+              ? 'bg-primary/[0.10] text-primary'
+              : 'text-muted hover:text-secondary hover:bg-primary/[0.04]'
+          }`}
+        >
+          <Moon className="w-4 h-4" aria-hidden="true" />
+        </motion.button>
+      </div>
     </div>
   );
 }

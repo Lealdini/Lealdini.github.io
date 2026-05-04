@@ -35,11 +35,11 @@ const BootIntro = () => {
       {show && (
         <motion.div
           aria-hidden="true"
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-zinc-50 dark:bg-background pointer-events-none"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-background pointer-events-none"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease: 'easeOut' } }}
         >
-          <span className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 dark:text-white flex">
+          <span className="text-4xl md:text-6xl font-semibold tracking-tight text-primary flex">
             {NAME.split('').map((ch, i) => (
               <motion.span
                 key={`${ch}-${i}`}
